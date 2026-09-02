@@ -1,0 +1,213 @@
+"use client";
+
+import { useActionState, useEffect, useRef, useState } from "react";
+import type { CategoryKind, EventItem, EventItemStatus } from "@/lib/types";
+import { formatCOP } from "@/lib/format";
+import { SubmitButton } from "@/components/submit-button";
+import { deleteItem, updateItem, updateItemStatus } from "./actions";
+
+const STATUS_CYCLE: Record<EventItemStatus, EventItemStatus> = {
+  pendiente: "confirmado",
+  confirmado: "pagado",
+  pagado: "pendiente",
+};
+
+const STATUS_STYLES: Record<EventItemStatus, string> = {
+  pendiente: "bg-rose-light text-terracotta-dark",
+  confirmado: "bg-gold/30 text-coffee",
+  pagado: "bg-sage/30 text-sage",
+};
+
+export function ItemRow({
+  eventId,
+  item,
+  kind,
+}: {
+  eventId: string;
+  item: EventItem;
+  kind: CategoryKind;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [state, formAction] = useActionState(updateItem.bind(null, eventId, item.id), undefined);
+  const submittedRef = useRef(false);
+
+  useEffect(() => {
+    if (submittedRef.current && !state?.error) {
+      setEditing(false);
+    }
+    submittedRef.current = false;
+  }, [state]);
+
+  if (editing) {
+    return (
+      <form
+        action={formAction}
+        onSubmit={() => {
+          submittedRef.current = true;
+        }}
+        className="space-y-2 py-2"
+      >
+        <input
+          name="name"
+          type="text"
+          defaultValue={item.name}
+          required
+          autoFocus
+          className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+        />
+        {kind === "guest" && (
+          <div className="flex gap-2">
+            <input
+              name="family"
+              type="text"
+              defaultValue={item.family ?? ""}
+              placeholder="Familia"
+              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+            <input
+              name="table_number"
+              type="text"
+              defaultValue={item.table_number ?? ""}
+              placeholder="Mesa"
+              className="w-24 rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+          </div>
+        )}
+        {kind === "food" && (
+          <textarea
+            name="ingredients"
+            defaultValue={item.ingredients ?? ""}
+            placeholder="Ingredientes"
+            rows={2}
+            className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+          />
+        )}
+        {kind === "generic" && (
+          <>
+            <input
+              name="estimated_cost"
+              type="number"
+              min="0"
+              step="1"
+              defaultValue={item.estimated_cost ?? ""}
+              placeholder="Costo estimado (COP)"
+              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+            <input
+              name="notes"
+              type="text"
+              defaultValue={item.notes ?? ""}
+              placeholder="Notas (opcional)"
+              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+          </>
+        )}
+        {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+        <div className="flex gap-2">
+          <SubmitButton className="flex-1">Guardar</SubmitButton>
+          <button
+            type="button"
+            onClick={() => setEditing(false)}
+            className="rounded-full border border-rose-light px-4 text-sm text-coffee-light"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    );
+  }
+
+  if (kind === "guest") {
+    return (
+      <div className="flex items-center justify-between gap-2 py-2">
+        <div className="min-w-0">
+          <p className="truncate text-coffee">{item.name}</p>
+          {item.family && <p className="truncate text-xs text-coffee-light">{item.family}</p>}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {item.table_number && (
+            <span className="whitespace-nowrap rounded-full bg-rose-light px-3 py-1 text-xs font-semibold text-terracotta-dark">
+              Mesa {item.table_number}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            aria-label="Editar invitado"
+            className="text-coffee-light hover:text-terracotta"
+          >
+            ✎
+          </button>
+          <form action={deleteItem.bind(null, eventId, item.id)}>
+            <button type="submit" aria-label="Eliminar invitado" className="text-coffee-light hover:text-red-600">
+              ✕
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === "food") {
+    return (
+      <div className="flex items-center justify-between gap-2 py-2">
+        <div className="min-w-0">
+          <p className="truncate text-coffee">{item.name}</p>
+          {item.ingredients && (
+            <p className="truncate text-xs text-coffee-light">{item.ingredients}</p>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            aria-label="Editar platillo"
+            className="text-coffee-light hover:text-terracotta"
+          >
+            ✎
+          </button>
+          <form action={deleteItem.bind(null, eventId, item.id)}>
+            <button type="submit" aria-label="Eliminar platillo" className="text-coffee-light hover:text-red-600">
+              ✕
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-2 py-2">
+      <div className="min-w-0">
+        <p className="truncate text-coffee">{item.name}</p>
+        {item.notes && <p className="truncate text-xs text-coffee-light">{item.notes}</p>}
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        {item.estimated_cost != null && (
+          <span className="text-sm text-coffee-light">{formatCOP(item.estimated_cost)}</span>
+        )}
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          aria-label="Editar ítem"
+          className="text-coffee-light hover:text-terracotta"
+        >
+          ✎
+        </button>
+        <form action={updateItemStatus.bind(null, eventId, item.id, STATUS_CYCLE[item.status])}>
+          <button
+            type="submit"
+            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[item.status]}`}
+          >
+            {item.status}
+          </button>
+        </form>
+        <form action={deleteItem.bind(null, eventId, item.id)}>
+          <button type="submit" aria-label="Eliminar ítem" className="text-coffee-light hover:text-red-600">
+            ✕
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

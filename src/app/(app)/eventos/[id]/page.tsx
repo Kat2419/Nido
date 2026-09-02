@@ -1,0 +1,76 @@
+import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import type { EventCategory, EventItem, EventRow } from "@/lib/types";
+import { formatCOP, formatDate } from "@/lib/format";
+import { AddCategoryForm } from "./add-category-form";
+import { CategoryCard } from "./category-card";
+import { DeleteEventButton } from "./delete-event-button";
+
+export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">) {
+  const { id } = await props.params;
+  const supabase = await createClient();
+
+  const { data: event } = await supabase.from("events").select("*").eq("id", id).maybeSingle();
+  if (!event) {
+    notFound();
+  }
+  const typedEvent = event as EventRow;
+
+  const { data: categories } = await supabase
+    .from("event_categories")
+    .select("*")
+    .eq("event_id", id)
+    .order("created_at", { ascending: true });
+
+  const categoryList = (categories ?? []) as EventCategory[];
+  const categoryIds = categoryList.map((c) => c.id);
+
+  const { data: items } = categoryIds.length
+    ? await supabase.from("event_items").select("*").in("category_id", categoryIds)
+    : { data: [] };
+
+  const itemList = (items ?? []) as EventItem[];
+  const totalEstimated = itemList.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
+  const totalPagado = itemList
+    .filter((i) => i.status === "pagado")
+    .reduce((sum, i) => sum + (i.actual_cost ?? i.estimated_cost ?? 0), 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-3xl italic text-terracotta">{typedEvent.title}</h1>
+          {typedEvent.event_date && (
+            <p className="text-coffee-light">{formatDate(typedEvent.event_date)}</p>
+          )}
+          {typedEvent.description && <p className="mt-1 text-coffee-light">{typedEvent.description}</p>}
+        </div>
+        <DeleteEventButton eventId={typedEvent.id} />
+      </div>
+
+      <div className="flex gap-4 rounded-2xl bg-white/60 p-4 shadow-sm">
+        <div className="flex-1">
+          <p className="text-xs text-coffee-light">Presupuesto estimado</p>
+          <p className="font-display text-xl text-coffee">{formatCOP(totalEstimated)}</p>
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-coffee-light">Ya pagado</p>
+          <p className="font-display text-xl text-sage">{formatCOP(totalPagado)}</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {categoryList.map((category) => (
+          <CategoryCard
+            key={category.id}
+            eventId={typedEvent.id}
+            category={category}
+            items={itemList.filter((i) => i.category_id === category.id)}
+          />
+        ))}
+      </div>
+
+      <AddCategoryForm eventId={typedEvent.id} />
+    </div>
+  );
+}

@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nido 💛
 
-## Getting Started
+App privada de pareja: mercado, fechas importantes y eventos (como su boda) con presupuesto por categorías.
 
-First, run the development server:
+## 1. Crear el backend en Supabase (una sola vez)
+
+1. Ve a [supabase.com](https://supabase.com) y crea una cuenta gratuita.
+2. Crea un **New project** (elige cualquier nombre, contraseña de base de datos y región cercana).
+3. Cuando el proyecto esté listo, ve a **Project Settings → API**. Copia:
+   - **Project URL**
+   - **anon public key**
+4. En este proyecto, copia el archivo `.env.local.example` a `.env.local` y pega esos dos valores:
+
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   ```
+
+5. Ve a **SQL Editor** en Supabase, pega todo el contenido de [`supabase/schema.sql`](supabase/schema.sql) y ejecútalo (**Run**). Esto crea las tablas, la seguridad por fila (para que solo ustedes dos vean sus datos) y las funciones para crear/unirse a una pareja.
+
+6. Ve a **Authentication → URL Configuration** y configura:
+   - **Site URL**: `http://localhost:5566`
+   - **Redirect URLs**: agrega `http://localhost:5566/**`
+
+   (Cuando publiquen la app en internet más adelante, agregarán aquí también esa URL).
+
+7. Por defecto Supabase ya envía el correo de confirmación de registro sin configuración adicional (usa su propio servidor de correo, con límites bajos pero suficientes para uso personal).
+
+## 2. Correr la app localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:5566](http://localhost:5566).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. Primer uso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Uno de los dos se registra en `/registro` con su correo real.
+2. Revisa tu correo y haz clic en el enlace de confirmación.
+3. En "Bienvenida", elige **crear nuestro Nido** — se genera un código de 6 caracteres.
+4. Comparte ese código con tu pareja. Ella/él se registra, confirma su correo, y en "Bienvenida" elige **unirme** e ingresa el código.
+5. ¡Listo! Ya comparten mercado, fechas y eventos.
 
-## Learn More
+## Estructura
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app/(app)` — páginas privadas (dashboard, mercado, fechas, eventos), protegidas por `src/proxy.ts`.
+- `src/app/auth`, `src/app/login`, `src/app/registro` — registro, login y confirmación por correo.
+- `src/app/bienvenida` — vincular tu cuenta con la de tu pareja.
+- `supabase/schema.sql` — todo el esquema de base de datos y seguridad.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Siguiente paso opcional: publicarla en internet
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ahora mismo la app solo funciona mientras tengan `npm run dev` corriendo en un computador. Para tenerla disponible siempre desde el celular de ambos, se puede desplegar gratis en [Vercel](https://vercel.com) — avísale a Claude cuando quieran hacerlo y lo configuramos.
