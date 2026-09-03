@@ -41,7 +41,9 @@ export function CategoryCard({
 
       {open && (
         <>
-          <div className="divide-y divide-rose-light">
+          <div
+            className={`divide-y divide-rose-light ${kind === "guest" ? "max-h-72 overflow-y-auto" : ""}`}
+          >
             {items.map((item) => (
               <ItemRow
                 key={item.id}
