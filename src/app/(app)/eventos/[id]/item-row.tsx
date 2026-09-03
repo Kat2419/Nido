@@ -176,7 +176,14 @@ export function ItemRow({
           >
             ✎
           </button>
-          <form action={deleteItem.bind(null, eventId, item.id, item.photo_path)}>
+          <form
+            action={deleteItem.bind(null, eventId, item.id, item.photo_path)}
+            onSubmit={(e) => {
+              if (!confirm("¿Estás seguro de que quieres borrar este invitado?")) {
+                e.preventDefault();
+              }
+            }}
+          >
             <button type="submit" aria-label="Eliminar invitado" className="text-coffee-light hover:text-red-600">
               ✕
             </button>
@@ -210,7 +217,14 @@ export function ItemRow({
           >
             ✎
           </button>
-          <form action={deleteItem.bind(null, eventId, item.id, item.photo_path)}>
+          <form
+            action={deleteItem.bind(null, eventId, item.id, item.photo_path)}
+            onSubmit={(e) => {
+              if (!confirm("¿Estás seguro de que quieres borrar este platillo?")) {
+                e.preventDefault();
+              }
+            }}
+          >
             <button type="submit" aria-label="Eliminar platillo" className="text-coffee-light hover:text-red-600">
               ✕
             </button>
@@ -254,7 +268,14 @@ export function ItemRow({
             <option value="pagado">pagado</option>
           </select>
         </form>
-        <form action={deleteItem.bind(null, eventId, item.id, item.photo_path)}>
+        <form
+          action={deleteItem.bind(null, eventId, item.id, item.photo_path)}
+          onSubmit={(e) => {
+            if (!confirm("¿Estás seguro de que quieres borrar este ítem?")) {
+              e.preventDefault();
+            }
+          }}
+        >
           <button type="submit" aria-label="Eliminar ítem" className="text-coffee-light hover:text-red-600">
             ✕
           </button>
