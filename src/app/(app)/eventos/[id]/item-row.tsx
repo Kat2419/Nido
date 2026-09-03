@@ -5,6 +5,7 @@ import type { CategoryKind, EventItem, EventItemStatus } from "@/lib/types";
 import { isImagePath } from "@/lib/types";
 import { formatCOP } from "@/lib/format";
 import { SubmitButton } from "@/components/submit-button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { deleteItem, updateItem, updateItemStatus } from "./actions";
 
 const STATUS_STYLES: Record<EventItemStatus, string> = {
@@ -52,6 +53,11 @@ export function ItemRow({
 }) {
   const clip = expanded ? "" : "truncate";
   const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const handleDelete = async () => {
+    setConfirmDelete(false);
+    await deleteItem(eventId, item.id, item.photo_path);
+  };
   const [state, formAction, isPending] = useActionState(
     updateItem.bind(null, eventId, item.id),
     undefined
@@ -176,19 +182,22 @@ export function ItemRow({
           >
             ✎
           </button>
-          <form
-            action={deleteItem.bind(null, eventId, item.id, item.photo_path)}
-            onSubmit={(e) => {
-              if (!confirm("¿Estás seguro de que quieres borrar este invitado?")) {
-                e.preventDefault();
-              }
-            }}
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            aria-label="Eliminar invitado"
+            className="text-coffee-light hover:text-red-600"
           >
-            <button type="submit" aria-label="Eliminar invitado" className="text-coffee-light hover:text-red-600">
-              ✕
-            </button>
-          </form>
+            ✕
+          </button>
         </div>
+        {confirmDelete && (
+          <ConfirmDialog
+            message="¿Estás seguro de que quieres borrar este invitado?"
+            onConfirm={handleDelete}
+            onCancel={() => setConfirmDelete(false)}
+          />
+        )}
       </div>
     );
   }
@@ -217,19 +226,22 @@ export function ItemRow({
           >
             ✎
           </button>
-          <form
-            action={deleteItem.bind(null, eventId, item.id, item.photo_path)}
-            onSubmit={(e) => {
-              if (!confirm("¿Estás seguro de que quieres borrar este platillo?")) {
-                e.preventDefault();
-              }
-            }}
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            aria-label="Eliminar platillo"
+            className="text-coffee-light hover:text-red-600"
           >
-            <button type="submit" aria-label="Eliminar platillo" className="text-coffee-light hover:text-red-600">
-              ✕
-            </button>
-          </form>
+            ✕
+          </button>
         </div>
+        {confirmDelete && (
+          <ConfirmDialog
+            message="¿Estás seguro de que quieres borrar este platillo?"
+            onConfirm={handleDelete}
+            onCancel={() => setConfirmDelete(false)}
+          />
+        )}
       </div>
     );
   }
@@ -268,19 +280,22 @@ export function ItemRow({
             <option value="pagado">pagado</option>
           </select>
         </form>
-        <form
-          action={deleteItem.bind(null, eventId, item.id, item.photo_path)}
-          onSubmit={(e) => {
-            if (!confirm("¿Estás seguro de que quieres borrar este ítem?")) {
-              e.preventDefault();
-            }
-          }}
+        <button
+          type="button"
+          onClick={() => setConfirmDelete(true)}
+          aria-label="Eliminar ítem"
+          className="text-coffee-light hover:text-red-600"
         >
-          <button type="submit" aria-label="Eliminar ítem" className="text-coffee-light hover:text-red-600">
-            ✕
-          </button>
-        </form>
+          ✕
+        </button>
       </div>
+      {confirmDelete && (
+        <ConfirmDialog
+          message="¿Estás seguro de que quieres borrar este ítem?"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </div>
   );
 }
