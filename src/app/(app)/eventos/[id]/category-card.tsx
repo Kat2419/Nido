@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import type { EventCategory, EventItem } from "@/lib/types";
-import { EVENT_CATEGORY_GROUPS, getCategoryKind } from "@/lib/types";
+import { EVENT_CATEGORY_GROUPS, getCategoryKind, itemEstimatedTotal } from "@/lib/types";
 import { formatCOP } from "@/lib/format";
 import { AddItemForm } from "./add-item-form";
 import { ItemRow } from "./item-row";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { deleteCategory, updateCategoryGroup } from "./actions";
+import { deleteCategory, updateCategoryGroup, updateCategoryPerGuest } from "./actions";
 
 function CategoryTotal({
   kind,
@@ -30,14 +30,16 @@ export function CategoryCard({
   eventId,
   category,
   items,
+  guestCount,
 }: {
   eventId: string;
   category: EventCategory;
   items: EventItem[];
+  guestCount: number;
 }) {
   const kind = getCategoryKind(category.name);
   const supportsPhoto = kind !== "guest";
-  const total = items.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
+  const total = items.reduce((sum, i) => sum + itemEstimatedTotal(i, category, guestCount), 0);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const handleDeleteCategory = async () => {
@@ -109,6 +111,25 @@ export function CategoryCard({
               </button>
             </form>
 
+            {kind !== "guest" && (
+              <form
+                action={updateCategoryPerGuest.bind(null, eventId, category.id)}
+                className="mb-4 flex items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  id={`per-guest-${category.id}`}
+                  name="per_guest"
+                  defaultChecked={category.per_guest}
+                  onChange={(e) => e.currentTarget.form?.requestSubmit()}
+                  className="h-4 w-4 accent-terracotta"
+                />
+                <label htmlFor={`per-guest-${category.id}`} className="text-xs text-coffee-light">
+                  Multiplicar por número de invitados ({guestCount})
+                </label>
+              </form>
+            )}
+
             <div className="divide-y divide-rose-light">
               {items.map((item) => (
                 <ItemRow
@@ -117,6 +138,8 @@ export function CategoryCard({
                   item={item}
                   kind={kind}
                   supportsPhoto={supportsPhoto}
+                  perGuest={category.per_guest}
+                  guestCount={guestCount}
                   expanded
                 />
               ))}
@@ -127,6 +150,7 @@ export function CategoryCard({
               categoryId={category.id}
               kind={kind}
               supportsPhoto={supportsPhoto}
+              perGuest={category.per_guest}
             />
           </div>
         </div>

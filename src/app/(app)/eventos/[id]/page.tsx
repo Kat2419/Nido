@@ -1,7 +1,12 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { EventCategory, EventItem, EventRow } from "@/lib/types";
-import { EVENT_CATEGORY_GROUPS, EVENT_PHOTOS_BUCKET } from "@/lib/types";
+import {
+  EVENT_CATEGORY_GROUPS,
+  EVENT_PHOTOS_BUCKET,
+  getCategoryKind,
+  itemEstimatedTotal,
+} from "@/lib/types";
 import { formatCOP, formatDate } from "@/lib/format";
 import { AddCategoryForm } from "./add-category-form";
 import { CategoryCard } from "./category-card";
@@ -45,10 +50,21 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
     ...i,
     photo_url: i.photo_path ? (urlByPath.get(i.photo_path) ?? null) : null,
   }));
-  const totalEstimated = itemList.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
+  const categoryById = new Map(categoryList.map((c) => [c.id, c]));
+  const guestCategoryIds = categoryList
+    .filter((c) => getCategoryKind(c.name) === "guest")
+    .map((c) => c.id);
+  const guestCount = itemList.filter((i) => guestCategoryIds.includes(i.category_id)).length;
+
+  const estimatedTotalFor = (item: EventItem) => {
+    const category = categoryById.get(item.category_id);
+    return category ? itemEstimatedTotal(item, category, guestCount) : (item.estimated_cost ?? 0);
+  };
+
+  const totalEstimated = itemList.reduce((sum, i) => sum + estimatedTotalFor(i), 0);
   const totalPagado = itemList
     .filter((i) => i.status === "pagado")
-    .reduce((sum, i) => sum + (i.actual_cost ?? i.estimated_cost ?? 0), 0);
+    .reduce((sum, i) => sum + (i.actual_cost ?? estimatedTotalFor(i)), 0);
   const saldoRestante = totalEstimated - totalPagado;
 
   return (
@@ -90,6 +106,7 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
                 eventId={typedEvent.id}
                 category={category}
                 items={itemList.filter((i) => i.category_id === category.id)}
+                guestCount={guestCount}
               />
             ))}
           </CategoryGroupSection>

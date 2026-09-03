@@ -14,6 +14,27 @@ const STATUS_STYLES: Record<EventItemStatus, string> = {
   pagado: "bg-sage/30 text-sage",
 };
 
+function CostBadge({
+  item,
+  perGuest,
+  guestCount,
+}: {
+  item: EventItem;
+  perGuest: boolean;
+  guestCount: number;
+}) {
+  if (item.estimated_cost == null) return null;
+  if (!perGuest) {
+    return <span className="text-sm text-coffee-light">{formatCOP(item.estimated_cost)}</span>;
+  }
+  return (
+    <span className="text-right text-sm text-coffee-light">
+      {formatCOP(item.estimated_cost * guestCount)}
+      <span className="block text-[10px] leading-none">{formatCOP(item.estimated_cost)} c/u</span>
+    </span>
+  );
+}
+
 function AttachmentThumb({ item }: { item: EventItem }) {
   if (!item.photo_url) return null;
 
@@ -43,12 +64,16 @@ export function ItemRow({
   item,
   kind,
   supportsPhoto,
+  perGuest = false,
+  guestCount = 0,
   expanded = false,
 }: {
   eventId: string;
   item: EventItem;
   kind: CategoryKind;
   supportsPhoto: boolean;
+  perGuest?: boolean;
+  guestCount?: number;
   expanded?: boolean;
 }) {
   const clip = expanded ? "" : "truncate";
@@ -116,7 +141,7 @@ export function ItemRow({
             min="0"
             step="1"
             defaultValue={item.estimated_cost ?? ""}
-            placeholder="Costo estimado (COP)"
+            placeholder={perGuest ? "Precio por invitado (COP)" : "Costo estimado (COP)"}
             className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
           />
         )}
@@ -215,9 +240,7 @@ export function ItemRow({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {item.estimated_cost != null && (
-            <span className="text-sm text-coffee-light">{formatCOP(item.estimated_cost)}</span>
-          )}
+          <CostBadge item={item} perGuest={perGuest} guestCount={guestCount} />
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -256,9 +279,7 @@ export function ItemRow({
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        {item.estimated_cost != null && (
-          <span className="text-sm text-coffee-light">{formatCOP(item.estimated_cost)}</span>
-        )}
+        <CostBadge item={item} perGuest={perGuest} guestCount={guestCount} />
         <button
           type="button"
           onClick={() => setEditing(true)}

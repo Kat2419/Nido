@@ -10,11 +10,13 @@ export function AddItemForm({
   categoryId,
   kind,
   supportsPhoto,
+  perGuest = false,
 }: {
   eventId: string;
   categoryId: string;
   kind: CategoryKind;
   supportsPhoto: boolean;
+  perGuest?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(
@@ -87,7 +89,7 @@ export function AddItemForm({
           type="number"
           min="0"
           step="1"
-          placeholder="Costo estimado (COP)"
+          placeholder={perGuest ? "Precio por invitado (COP)" : "Costo estimado (COP)"}
           className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
         />
       )}

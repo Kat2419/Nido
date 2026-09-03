@@ -61,6 +61,7 @@ create table if not exists event_categories (
     'Documentos y legal',
     'Otros'
   )),
+  per_guest boolean not null default false,
   created_at timestamptz not null default now()
 );
 

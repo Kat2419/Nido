@@ -66,6 +66,17 @@ export async function updateCategoryGroup(eventId: string, categoryId: string, f
   revalidatePath(`/eventos/${eventId}`);
 }
 
+export async function updateCategoryPerGuest(
+  eventId: string,
+  categoryId: string,
+  formData: FormData
+) {
+  const perGuest = formData.get("per_guest") === "on";
+  const { supabase } = await getCurrentUserAndCouple();
+  await supabase.from("event_categories").update({ per_guest: perGuest }).eq("id", categoryId);
+  revalidatePath(`/eventos/${eventId}`);
+}
+
 export async function deleteCategory(eventId: string, categoryId: string) {
   const { supabase } = await getCurrentUserAndCouple();
   const { data: items } = await supabase

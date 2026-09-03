@@ -64,6 +64,7 @@ export type EventCategory = {
   event_id: string;
   name: string;
   group_name: EventCategoryGroup;
+  per_guest: boolean;
   created_at: string;
 };
 
@@ -102,6 +103,15 @@ export function getCategoryKind(categoryName: string): CategoryKind {
   if (categoryName === GUEST_CATEGORY_NAME) return "guest";
   if (categoryName === FOOD_CATEGORY_NAME) return "food";
   return "generic";
+}
+
+export function itemEstimatedTotal(
+  item: Pick<EventItem, "estimated_cost">,
+  category: Pick<EventCategory, "per_guest">,
+  guestCount: number
+): number {
+  const unit = item.estimated_cost ?? 0;
+  return category.per_guest ? unit * guestCount : unit;
 }
 
 export const EVENT_PHOTOS_BUCKET = "event-photos";
