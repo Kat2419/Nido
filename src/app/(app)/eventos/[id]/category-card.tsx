@@ -6,7 +6,8 @@ import { EVENT_CATEGORY_GROUPS, getCategoryKind } from "@/lib/types";
 import { formatCOP } from "@/lib/format";
 import { AddItemForm } from "./add-item-form";
 import { ItemRow } from "./item-row";
-import { updateCategoryGroup } from "./actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { deleteCategory, updateCategoryGroup } from "./actions";
 
 function CategoryTotal({
   kind,
@@ -39,6 +40,12 @@ export function CategoryCard({
   const total = items.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
   const [open, setOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const handleDeleteCategory = async () => {
+    setConfirmDelete(false);
+    setViewerOpen(false);
+    await deleteCategory(eventId, category.id);
+  };
 
   return (
     <div className="rounded-2xl bg-white/60 p-4 shadow-sm">
@@ -129,6 +136,13 @@ export function CategoryCard({
                   </option>
                 ))}
               </select>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="ml-auto text-xs text-coffee-light underline hover:text-red-600"
+              >
+                Eliminar categoría
+              </button>
             </form>
 
             <div className="divide-y divide-rose-light">
@@ -152,6 +166,14 @@ export function CategoryCard({
             />
           </div>
         </div>
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`¿Eliminar la categoría "${category.name}"? Esto también borra los ${items.length} ítems que tiene adentro.`}
+          onConfirm={handleDeleteCategory}
+          onCancel={() => setConfirmDelete(false)}
+        />
       )}
     </div>
   );

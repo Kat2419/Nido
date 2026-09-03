@@ -10,12 +10,12 @@ import {
   type EventCategoryGroup,
   type EventItemStatus,
 } from "@/lib/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 function parseCategoryGroup(value: FormDataEntryValue | null): EventCategoryGroup {
   const groups: readonly string[] = EVENT_CATEGORY_GROUPS;
   return groups.includes(String(value)) ? (value as EventCategoryGroup) : DEFAULT_CATEGORY_GROUP;
 }
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 async function uploadItemPhoto(
   supabase: SupabaseClient,
@@ -63,6 +63,25 @@ export async function updateCategoryGroup(eventId: string, categoryId: string, f
   const groupName = parseCategoryGroup(formData.get("group_name"));
   const { supabase } = await getCurrentUserAndCouple();
   await supabase.from("event_categories").update({ group_name: groupName }).eq("id", categoryId);
+  revalidatePath(`/eventos/${eventId}`);
+}
+
+export async function deleteCategory(eventId: string, categoryId: string) {
+  const { supabase } = await getCurrentUserAndCouple();
+  const { data: items } = await supabase
+    .from("event_items")
+    .select("photo_path")
+    .eq("category_id", categoryId);
+  const photoPaths = (items ?? [])
+    .map((i) => i.photo_path as string | null)
+    .filter((p): p is string => Boolean(p));
+
+  await supabase.from("event_categories").delete().eq("id", categoryId);
+
+  if (photoPaths.length) {
+    await supabase.storage.from(EVENT_PHOTOS_BUCKET).remove(photoPaths);
+  }
+
   revalidatePath(`/eventos/${eventId}`);
 }
 
