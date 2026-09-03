@@ -38,7 +38,6 @@ export function CategoryCard({
   const kind = getCategoryKind(category.name);
   const supportsPhoto = kind !== "guest";
   const total = items.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
-  const [open, setOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const handleDeleteCategory = async () => {
@@ -49,51 +48,16 @@ export function CategoryCard({
 
   return (
     <div className="rounded-2xl bg-white/60 p-4 shadow-sm">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label={open ? "Colapsar" : "Expandir"}
-          className="shrink-0 text-coffee-light"
-        >
-          {open ? "▾" : "▸"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setViewerOpen(true)}
-          className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left"
-        >
-          <h3 className="truncate font-display text-lg text-coffee hover:text-terracotta">
-            {category.name}
-          </h3>
-          <CategoryTotal kind={kind} items={items} total={total} />
-        </button>
-      </div>
-
-      {open && (
-        <>
-          <div
-            className={`divide-y divide-rose-light ${kind === "guest" ? "max-h-72 overflow-y-auto" : ""}`}
-          >
-            {items.map((item) => (
-              <ItemRow
-                key={item.id}
-                eventId={eventId}
-                item={item}
-                kind={kind}
-                supportsPhoto={supportsPhoto}
-              />
-            ))}
-          </div>
-
-          <AddItemForm
-            eventId={eventId}
-            categoryId={category.id}
-            kind={kind}
-            supportsPhoto={supportsPhoto}
-          />
-        </>
-      )}
+      <button
+        type="button"
+        onClick={() => setViewerOpen(true)}
+        className="flex w-full min-w-0 items-center justify-between gap-2 text-left"
+      >
+        <h3 className="truncate font-display text-lg text-coffee hover:text-terracotta">
+          {category.name}
+        </h3>
+        <CategoryTotal kind={kind} items={items} total={total} />
+      </button>
 
       {viewerOpen && (
         <div
