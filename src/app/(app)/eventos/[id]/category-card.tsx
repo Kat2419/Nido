@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import type { EventCategory, EventItem } from "@/lib/types";
-import { getCategoryKind } from "@/lib/types";
+import { EVENT_CATEGORY_GROUPS, getCategoryKind } from "@/lib/types";
 import { formatCOP } from "@/lib/format";
 import { AddItemForm } from "./add-item-form";
 import { ItemRow } from "./item-row";
+import { updateCategoryGroup } from "./actions";
 
 function CategoryTotal({
   kind,
@@ -110,6 +111,25 @@ export function CategoryCard({
                 </button>
               </div>
             </div>
+
+            <form
+              action={updateCategoryGroup.bind(null, eventId, category.id)}
+              className="mb-4 flex items-center gap-2"
+            >
+              <label className="text-xs text-coffee-light">Grupo:</label>
+              <select
+                name="group_name"
+                defaultValue={category.group_name}
+                onChange={(e) => e.currentTarget.form?.requestSubmit()}
+                className="rounded-full border border-rose-light bg-cream px-3 py-1 text-xs outline-none focus:border-terracotta"
+              >
+                {EVENT_CATEGORY_GROUPS.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </select>
+            </form>
 
             <div className="divide-y divide-rose-light">
               {items.map((item) => (

@@ -46,10 +46,24 @@ export type EventRow = {
   created_at: string;
 };
 
+export const EVENT_CATEGORY_GROUPS = [
+  "Logística y decoración",
+  "Comida y bebidas",
+  "Vestuario y accesorios",
+  "Invitados",
+  "Documentos y legal",
+  "Otros",
+] as const;
+
+export type EventCategoryGroup = (typeof EVENT_CATEGORY_GROUPS)[number];
+
+export const DEFAULT_CATEGORY_GROUP: EventCategoryGroup = "Otros";
+
 export type EventCategory = {
   id: string;
   event_id: string;
   name: string;
+  group_name: EventCategoryGroup;
   created_at: string;
 };
 
@@ -69,14 +83,14 @@ export type EventItem = {
   created_at: string;
 };
 
-export const DEFAULT_EVENT_CATEGORIES = [
-  "Comida",
-  "Mesas",
-  "Manteles",
-  "Invitados",
-  "Snacks",
-  "Anillos",
-  "Traje",
+export const DEFAULT_EVENT_CATEGORIES: { name: string; group: EventCategoryGroup }[] = [
+  { name: "Mesas", group: "Logística y decoración" },
+  { name: "Manteles", group: "Logística y decoración" },
+  { name: "Comida", group: "Comida y bebidas" },
+  { name: "Snacks", group: "Comida y bebidas" },
+  { name: "Invitados", group: "Invitados" },
+  { name: "Anillos", group: "Vestuario y accesorios" },
+  { name: "Traje", group: "Vestuario y accesorios" },
 ];
 
 export const GUEST_CATEGORY_NAME = "Invitados";

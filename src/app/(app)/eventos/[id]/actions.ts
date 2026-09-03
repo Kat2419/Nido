@@ -3,7 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUserAndCouple } from "@/lib/supabase/helpers";
-import { EVENT_PHOTOS_BUCKET, type EventItemStatus } from "@/lib/types";
+import {
+  DEFAULT_CATEGORY_GROUP,
+  EVENT_CATEGORY_GROUPS,
+  EVENT_PHOTOS_BUCKET,
+  type EventCategoryGroup,
+  type EventItemStatus,
+} from "@/lib/types";
+
+function parseCategoryGroup(value: FormDataEntryValue | null): EventCategoryGroup {
+  const groups: readonly string[] = EVENT_CATEGORY_GROUPS;
+  return groups.includes(String(value)) ? (value as EventCategoryGroup) : DEFAULT_CATEGORY_GROUP;
+}
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 async function uploadItemPhoto(
@@ -30,6 +41,7 @@ export async function addCategory(
   formData: FormData
 ): Promise<CategoryState> {
   const name = String(formData.get("name") ?? "").trim();
+  const groupName = parseCategoryGroup(formData.get("group_name"));
   if (!name) {
     return { error: "Ponle un nombre a la categoría." };
   }
@@ -37,7 +49,7 @@ export async function addCategory(
   const { supabase, coupleId } = await getCurrentUserAndCouple();
   const { error } = await supabase
     .from("event_categories")
-    .insert({ event_id: eventId, couple_id: coupleId, name });
+    .insert({ event_id: eventId, couple_id: coupleId, name, group_name: groupName });
 
   if (error) {
     return { error: "No pudimos crear la categoría." };
@@ -45,6 +57,13 @@ export async function addCategory(
 
   revalidatePath(`/eventos/${eventId}`);
   return undefined;
+}
+
+export async function updateCategoryGroup(eventId: string, categoryId: string, formData: FormData) {
+  const groupName = parseCategoryGroup(formData.get("group_name"));
+  const { supabase } = await getCurrentUserAndCouple();
+  await supabase.from("event_categories").update({ group_name: groupName }).eq("id", categoryId);
+  revalidatePath(`/eventos/${eventId}`);
 }
 
 export type ItemState = { error: string } | undefined;

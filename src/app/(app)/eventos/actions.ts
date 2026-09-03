@@ -34,10 +34,11 @@ export async function createEvent(_prevState: EventState, formData: FormData): P
   }
 
   await supabase.from("event_categories").insert(
-    DEFAULT_EVENT_CATEGORIES.map((name) => ({
+    DEFAULT_EVENT_CATEGORIES.map(({ name, group }) => ({
       event_id: event.id,
       couple_id: coupleId,
       name,
+      group_name: group,
     }))
   );
 

@@ -53,6 +53,14 @@ create table if not exists event_categories (
   event_id uuid not null references events (id) on delete cascade,
   couple_id uuid not null references couples (id) on delete cascade,
   name text not null,
+  group_name text not null default 'Otros' check (group_name in (
+    'Logística y decoración',
+    'Comida y bebidas',
+    'Vestuario y accesorios',
+    'Invitados',
+    'Documentos y legal',
+    'Otros'
+  )),
   created_at timestamptz not null default now()
 );
 

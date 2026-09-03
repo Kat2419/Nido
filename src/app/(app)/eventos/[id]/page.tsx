@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { EventCategory, EventItem, EventRow } from "@/lib/types";
-import { EVENT_PHOTOS_BUCKET } from "@/lib/types";
+import { EVENT_CATEGORY_GROUPS, EVENT_PHOTOS_BUCKET } from "@/lib/types";
 import { formatCOP, formatDate } from "@/lib/format";
 import { AddCategoryForm } from "./add-category-form";
 import { CategoryCard } from "./category-card";
@@ -78,16 +78,26 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
         </div>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {categoryList.map((category) => (
-          <CategoryCard
-            key={category.id}
-            eventId={typedEvent.id}
-            category={category}
-            items={itemList.filter((i) => i.category_id === category.id)}
-          />
-        ))}
-      </div>
+      {EVENT_CATEGORY_GROUPS.map((group) => {
+        const groupCategories = categoryList.filter((c) => c.group_name === group);
+        if (groupCategories.length === 0) return null;
+
+        return (
+          <div key={group} className="space-y-3">
+            <h2 className="font-display text-xl text-coffee">{group}</h2>
+            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {groupCategories.map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  eventId={typedEvent.id}
+                  category={category}
+                  items={itemList.filter((i) => i.category_id === category.id)}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })}
 
       <AddCategoryForm eventId={typedEvent.id} />
     </div>
