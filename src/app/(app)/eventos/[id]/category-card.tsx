@@ -37,7 +37,7 @@ export function CategoryCard({
   const kind = getCategoryKind(category.name);
   const supportsPhoto = kind !== "guest";
   const total = items.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
-  const [open, setOpen] = useState(kind !== "guest");
+  const [open, setOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
 
   return (

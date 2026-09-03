@@ -5,6 +5,7 @@ import { EVENT_CATEGORY_GROUPS, EVENT_PHOTOS_BUCKET } from "@/lib/types";
 import { formatCOP, formatDate } from "@/lib/format";
 import { AddCategoryForm } from "./add-category-form";
 import { CategoryCard } from "./category-card";
+import { CategoryGroupSection } from "./category-group-section";
 import { DeleteEventButton } from "./delete-event-button";
 
 export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">) {
@@ -83,19 +84,16 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
         if (groupCategories.length === 0) return null;
 
         return (
-          <div key={group} className="space-y-3">
-            <h2 className="font-display text-xl text-coffee">{group}</h2>
-            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {groupCategories.map((category) => (
-                <CategoryCard
-                  key={category.id}
-                  eventId={typedEvent.id}
-                  category={category}
-                  items={itemList.filter((i) => i.category_id === category.id)}
-                />
-              ))}
-            </div>
-          </div>
+          <CategoryGroupSection key={group} group={group}>
+            {groupCategories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                eventId={typedEvent.id}
+                category={category}
+                items={itemList.filter((i) => i.category_id === category.id)}
+              />
+            ))}
+          </CategoryGroupSection>
         );
       })}
 
