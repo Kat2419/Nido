@@ -42,12 +42,15 @@ export function ItemRow({
   item,
   kind,
   supportsPhoto,
+  expanded = false,
 }: {
   eventId: string;
   item: EventItem;
   kind: CategoryKind;
   supportsPhoto: boolean;
+  expanded?: boolean;
 }) {
+  const clip = expanded ? "" : "truncate";
   const [editing, setEditing] = useState(false);
   const [state, formAction, isPending] = useActionState(
     updateItem.bind(null, eventId, item.id),
@@ -155,9 +158,9 @@ export function ItemRow({
   if (kind === "guest") {
     return (
       <div className="flex items-center justify-between gap-2 py-2">
-        <div className="min-w-0">
-          <p className="truncate text-coffee">{item.name}</p>
-          {item.family && <p className="truncate text-xs text-coffee-light">{item.family}</p>}
+        <div className="min-w-0 flex-1">
+          <p className={`${clip} text-coffee`}>{item.name}</p>
+          {item.family && <p className={`${clip} text-xs text-coffee-light`}>{item.family}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {item.table_number && (
@@ -186,12 +189,12 @@ export function ItemRow({
   if (kind === "food") {
     return (
       <div className="flex items-center justify-between gap-2 py-2">
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <AttachmentThumb item={item} />
-          <div className="min-w-0">
-            <p className="truncate text-coffee">{item.name}</p>
+          <div className="min-w-0 flex-1">
+            <p className={`${clip} text-coffee`}>{item.name}</p>
             {item.ingredients && (
-              <p className="truncate text-xs text-coffee-light">{item.ingredients}</p>
+              <p className={`${clip} text-xs text-coffee-light`}>{item.ingredients}</p>
             )}
           </div>
         </div>
@@ -219,11 +222,11 @@ export function ItemRow({
 
   return (
     <div className="flex items-center justify-between gap-2 py-2">
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <AttachmentThumb item={item} />
-        <div className="min-w-0">
-          <p className="truncate text-coffee">{item.name}</p>
-          {item.notes && <p className="truncate text-xs text-coffee-light">{item.notes}</p>}
+        <div className="min-w-0 flex-1">
+          <p className={`${clip} text-coffee`}>{item.name}</p>
+          {item.notes && <p className={`${clip} text-xs text-coffee-light`}>{item.notes}</p>}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
