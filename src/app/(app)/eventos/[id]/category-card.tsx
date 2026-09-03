@@ -17,6 +17,7 @@ export function CategoryCard({
   items: EventItem[];
 }) {
   const kind = getCategoryKind(category.name);
+  const supportsPhoto = kind !== "guest";
   const total = items.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
   const [open, setOpen] = useState(kind !== "guest");
 
@@ -35,19 +36,29 @@ export function CategoryCard({
           ? items.length > 0 && (
               <span className="text-sm text-coffee-light">{items.length} invitados</span>
             )
-          : kind === "generic" &&
-            total > 0 && <span className="text-sm text-coffee-light">{formatCOP(total)}</span>}
+          : total > 0 && <span className="text-sm text-coffee-light">{formatCOP(total)}</span>}
       </button>
 
       {open && (
         <>
           <div className="divide-y divide-rose-light">
             {items.map((item) => (
-              <ItemRow key={item.id} eventId={eventId} item={item} kind={kind} />
+              <ItemRow
+                key={item.id}
+                eventId={eventId}
+                item={item}
+                kind={kind}
+                supportsPhoto={supportsPhoto}
+              />
             ))}
           </div>
 
-          <AddItemForm eventId={eventId} categoryId={category.id} kind={kind} />
+          <AddItemForm
+            eventId={eventId}
+            categoryId={category.id}
+            kind={kind}
+            supportsPhoto={supportsPhoto}
+          />
         </>
       )}
     </div>

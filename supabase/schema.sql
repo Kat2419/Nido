@@ -68,6 +68,7 @@ create table if not exists event_items (
   family text,
   table_number text,
   ingredients text,
+  photo_path text,
   created_at timestamptz not null default now()
 );
 
@@ -182,3 +183,27 @@ create policy "event_categories: acceso de la pareja" on event_categories
 
 create policy "event_items: acceso de la pareja" on event_items
   for all using (couple_id = my_couple_id()) with check (couple_id = my_couple_id());
+
+-- 6. Fotos de items (Storage) ----------------------------------------------
+
+insert into storage.buckets (id, name, public)
+values ('event-photos', 'event-photos', false)
+on conflict (id) do nothing;
+
+create policy "event_photos: ver las de mi pareja" on storage.objects
+  for select using (
+    bucket_id = 'event-photos'
+    and (storage.foldername(name))[1] = my_couple_id()::text
+  );
+
+create policy "event_photos: subir para mi pareja" on storage.objects
+  for insert with check (
+    bucket_id = 'event-photos'
+    and (storage.foldername(name))[1] = my_couple_id()::text
+  );
+
+create policy "event_photos: borrar las de mi pareja" on storage.objects
+  for delete using (
+    bucket_id = 'event-photos'
+    and (storage.foldername(name))[1] = my_couple_id()::text
+  );

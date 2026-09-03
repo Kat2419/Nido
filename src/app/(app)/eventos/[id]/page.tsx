@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { EventCategory, EventItem, EventRow } from "@/lib/types";
+import { EVENT_PHOTOS_BUCKET } from "@/lib/types";
 import { formatCOP, formatDate } from "@/lib/format";
 import { AddCategoryForm } from "./add-category-form";
 import { CategoryCard } from "./category-card";
@@ -29,7 +30,20 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
     ? await supabase.from("event_items").select("*").in("category_id", categoryIds)
     : { data: [] };
 
-  const itemList = (items ?? []) as EventItem[];
+  const rawItemList = (items ?? []) as EventItem[];
+  const photoPaths = rawItemList
+    .map((i) => i.photo_path)
+    .filter((p): p is string => Boolean(p));
+
+  const { data: signedUrls } = photoPaths.length
+    ? await supabase.storage.from(EVENT_PHOTOS_BUCKET).createSignedUrls(photoPaths, 3600)
+    : { data: [] };
+  const urlByPath = new Map((signedUrls ?? []).map((s) => [s.path, s.signedUrl]));
+
+  const itemList = rawItemList.map((i) => ({
+    ...i,
+    photo_url: i.photo_path ? (urlByPath.get(i.photo_path) ?? null) : null,
+  }));
   const totalEstimated = itemList.reduce((sum, i) => sum + (i.estimated_cost ?? 0), 0);
   const totalPagado = itemList
     .filter((i) => i.status === "pagado")

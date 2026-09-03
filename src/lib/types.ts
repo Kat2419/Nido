@@ -64,6 +64,8 @@ export type EventItem = {
   family: string | null;
   table_number: string | null;
   ingredients: string | null;
+  photo_path: string | null;
+  photo_url: string | null;
   created_at: string;
 };
 
@@ -86,4 +88,14 @@ export function getCategoryKind(categoryName: string): CategoryKind {
   if (categoryName === GUEST_CATEGORY_NAME) return "guest";
   if (categoryName === FOOD_CATEGORY_NAME) return "food";
   return "generic";
+}
+
+export const EVENT_PHOTOS_BUCKET = "event-photos";
+
+const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "heic", "heif", "avif"];
+
+export function isImagePath(path: string | null): boolean {
+  if (!path) return false;
+  const ext = path.split(".").pop()?.toLowerCase();
+  return !!ext && IMAGE_EXTENSIONS.includes(ext);
 }

@@ -3,7 +3,24 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUserAndCouple } from "@/lib/supabase/helpers";
-import type { EventItemStatus } from "@/lib/types";
+import { EVENT_PHOTOS_BUCKET, type EventItemStatus } from "@/lib/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+async function uploadItemPhoto(
+  supabase: SupabaseClient,
+  coupleId: string,
+  formData: FormData
+): Promise<string | null> {
+  const photo = formData.get("photo");
+  if (!(photo instanceof File) || photo.size === 0) {
+    return null;
+  }
+
+  const ext = photo.name.includes(".") ? photo.name.split(".").pop() : undefined;
+  const path = `${coupleId}/${crypto.randomUUID()}${ext ? `.${ext}` : ""}`;
+  const { error } = await supabase.storage.from(EVENT_PHOTOS_BUCKET).upload(path, photo);
+  return error ? null : path;
+}
 
 export type CategoryState = { error: string } | undefined;
 
@@ -50,6 +67,7 @@ export async function addItem(
   }
 
   const { supabase, coupleId } = await getCurrentUserAndCouple();
+  const photoPath = await uploadItemPhoto(supabase, coupleId, formData);
   const { error } = await supabase.from("event_items").insert({
     category_id: categoryId,
     couple_id: coupleId,
@@ -59,6 +77,7 @@ export async function addItem(
     family: family || null,
     table_number: tableNumber || null,
     ingredients: ingredients || null,
+    photo_path: photoPath,
   });
 
   if (error) {
@@ -81,12 +100,18 @@ export async function updateItem(
   const family = String(formData.get("family") ?? "").trim();
   const tableNumber = String(formData.get("table_number") ?? "").trim();
   const ingredients = String(formData.get("ingredients") ?? "").trim();
+  const oldPhotoPath = String(formData.get("old_photo_path") ?? "").trim();
 
   if (!name) {
     return { error: "Escribe el nombre del ítem." };
   }
 
-  const { supabase } = await getCurrentUserAndCouple();
+  const { supabase, coupleId } = await getCurrentUserAndCouple();
+  const newPhotoPath = await uploadItemPhoto(supabase, coupleId, formData);
+  if (newPhotoPath && oldPhotoPath) {
+    await supabase.storage.from(EVENT_PHOTOS_BUCKET).remove([oldPhotoPath]);
+  }
+
   const { error } = await supabase
     .from("event_items")
     .update({
@@ -96,6 +121,7 @@ export async function updateItem(
       family: family || null,
       table_number: tableNumber || null,
       ingredients: ingredients || null,
+      ...(newPhotoPath ? { photo_path: newPhotoPath } : {}),
     })
     .eq("id", itemId);
 
@@ -107,13 +133,17 @@ export async function updateItem(
   return undefined;
 }
 
-export async function deleteItem(eventId: string, itemId: string) {
+export async function deleteItem(eventId: string, itemId: string, photoPath: string | null) {
   const { supabase } = await getCurrentUserAndCouple();
   await supabase.from("event_items").delete().eq("id", itemId);
+  if (photoPath) {
+    await supabase.storage.from(EVENT_PHOTOS_BUCKET).remove([photoPath]);
+  }
   revalidatePath(`/eventos/${eventId}`);
 }
 
-export async function updateItemStatus(eventId: string, itemId: string, status: EventItemStatus) {
+export async function updateItemStatus(eventId: string, itemId: string, formData: FormData) {
+  const status = String(formData.get("status") ?? "") as EventItemStatus;
   const { supabase } = await getCurrentUserAndCouple();
   await supabase.from("event_items").update({ status }).eq("id", itemId);
   revalidatePath(`/eventos/${eventId}`);

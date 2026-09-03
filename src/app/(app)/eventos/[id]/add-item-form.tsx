@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { addItem } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
 import type { CategoryKind } from "@/lib/types";
@@ -9,13 +9,26 @@ export function AddItemForm({
   eventId,
   categoryId,
   kind,
+  supportsPhoto,
 }: {
   eventId: string;
   categoryId: string;
   kind: CategoryKind;
+  supportsPhoto: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(addItem.bind(null, eventId, categoryId), undefined);
+  const [state, formAction, isPending] = useActionState(
+    addItem.bind(null, eventId, categoryId),
+    undefined
+  );
+  const wasPendingRef = useRef(false);
+
+  useEffect(() => {
+    if (wasPendingRef.current && !isPending && !state?.error) {
+      setOpen(false);
+    }
+    wasPendingRef.current = isPending;
+  }, [isPending, state]);
 
   if (!open) {
     return (
@@ -68,25 +81,31 @@ export function AddItemForm({
           className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
         />
       )}
+      {(kind === "food" || kind === "generic") && (
+        <input
+          name="estimated_cost"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="Costo estimado (COP)"
+          className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+        />
+      )}
       {kind === "generic" && (
-        <>
-          <div className="flex gap-2">
-            <input
-              name="estimated_cost"
-              type="number"
-              min="0"
-              step="1"
-              placeholder="Costo estimado (COP)"
-              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
-            />
-          </div>
-          <input
-            name="notes"
-            type="text"
-            placeholder="Notas (opcional)"
-            className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
-          />
-        </>
+        <input
+          name="notes"
+          type="text"
+          placeholder="Notas (opcional)"
+          className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+        />
+      )}
+      {supportsPhoto && (
+        <input
+          name="photo"
+          type="file"
+          accept="image/*,application/pdf"
+          className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+        />
       )}
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       <div className="flex gap-2">

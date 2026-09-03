@@ -2,15 +2,10 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import type { CategoryKind, EventItem, EventItemStatus } from "@/lib/types";
+import { isImagePath } from "@/lib/types";
 import { formatCOP } from "@/lib/format";
 import { SubmitButton } from "@/components/submit-button";
 import { deleteItem, updateItem, updateItemStatus } from "./actions";
-
-const STATUS_CYCLE: Record<EventItemStatus, EventItemStatus> = {
-  pendiente: "confirmado",
-  confirmado: "pagado",
-  pagado: "pendiente",
-};
 
 const STATUS_STYLES: Record<EventItemStatus, string> = {
   pendiente: "bg-rose-light text-terracotta-dark",
@@ -18,35 +13,58 @@ const STATUS_STYLES: Record<EventItemStatus, string> = {
   pagado: "bg-sage/30 text-sage",
 };
 
+function AttachmentThumb({ item }: { item: EventItem }) {
+  if (!item.photo_url) return null;
+
+  if (isImagePath(item.photo_path)) {
+    return (
+      <a href={item.photo_url} target="_blank" rel="noreferrer" className="shrink-0">
+        <img src={item.photo_url} alt="" className="h-10 w-10 rounded-lg object-cover" />
+      </a>
+    );
+  }
+
+  return (
+    <a
+      href={item.photo_url}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Ver archivo adjunto"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-light text-lg"
+    >
+      📄
+    </a>
+  );
+}
+
 export function ItemRow({
   eventId,
   item,
   kind,
+  supportsPhoto,
 }: {
   eventId: string;
   item: EventItem;
   kind: CategoryKind;
+  supportsPhoto: boolean;
 }) {
   const [editing, setEditing] = useState(false);
-  const [state, formAction] = useActionState(updateItem.bind(null, eventId, item.id), undefined);
-  const submittedRef = useRef(false);
+  const [state, formAction, isPending] = useActionState(
+    updateItem.bind(null, eventId, item.id),
+    undefined
+  );
+  const wasPendingRef = useRef(false);
 
   useEffect(() => {
-    if (submittedRef.current && !state?.error) {
+    if (wasPendingRef.current && !isPending && !state?.error) {
       setEditing(false);
     }
-    submittedRef.current = false;
-  }, [state]);
+    wasPendingRef.current = isPending;
+  }, [isPending, state]);
 
   if (editing) {
     return (
-      <form
-        action={formAction}
-        onSubmit={() => {
-          submittedRef.current = true;
-        }}
-        className="space-y-2 py-2"
-      >
+      <form action={formAction} className="space-y-2 py-2">
         <input
           name="name"
           type="text"
@@ -82,22 +100,39 @@ export function ItemRow({
             className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
           />
         )}
+        {(kind === "food" || kind === "generic") && (
+          <input
+            name="estimated_cost"
+            type="number"
+            min="0"
+            step="1"
+            defaultValue={item.estimated_cost ?? ""}
+            placeholder="Costo estimado (COP)"
+            className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+          />
+        )}
         {kind === "generic" && (
+          <input
+            name="notes"
+            type="text"
+            defaultValue={item.notes ?? ""}
+            placeholder="Notas (opcional)"
+            className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+          />
+        )}
+        {supportsPhoto && (
           <>
+            {item.photo_url && (
+              <div className="flex items-center gap-2">
+                <AttachmentThumb item={item} />
+                <span className="text-xs text-coffee-light">Archivo actual (clic para verlo)</span>
+              </div>
+            )}
+            <input type="hidden" name="old_photo_path" value={item.photo_path ?? ""} />
             <input
-              name="estimated_cost"
-              type="number"
-              min="0"
-              step="1"
-              defaultValue={item.estimated_cost ?? ""}
-              placeholder="Costo estimado (COP)"
-              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
-            />
-            <input
-              name="notes"
-              type="text"
-              defaultValue={item.notes ?? ""}
-              placeholder="Notas (opcional)"
+              name="photo"
+              type="file"
+              accept="image/*,application/pdf"
               className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
             />
           </>
@@ -138,7 +173,7 @@ export function ItemRow({
           >
             ✎
           </button>
-          <form action={deleteItem.bind(null, eventId, item.id)}>
+          <form action={deleteItem.bind(null, eventId, item.id, item.photo_path)}>
             <button type="submit" aria-label="Eliminar invitado" className="text-coffee-light hover:text-red-600">
               ✕
             </button>
@@ -151,13 +186,19 @@ export function ItemRow({
   if (kind === "food") {
     return (
       <div className="flex items-center justify-between gap-2 py-2">
-        <div className="min-w-0">
-          <p className="truncate text-coffee">{item.name}</p>
-          {item.ingredients && (
-            <p className="truncate text-xs text-coffee-light">{item.ingredients}</p>
-          )}
+        <div className="flex min-w-0 items-center gap-3">
+          <AttachmentThumb item={item} />
+          <div className="min-w-0">
+            <p className="truncate text-coffee">{item.name}</p>
+            {item.ingredients && (
+              <p className="truncate text-xs text-coffee-light">{item.ingredients}</p>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {item.estimated_cost != null && (
+            <span className="text-sm text-coffee-light">{formatCOP(item.estimated_cost)}</span>
+          )}
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -166,7 +207,7 @@ export function ItemRow({
           >
             ✎
           </button>
-          <form action={deleteItem.bind(null, eventId, item.id)}>
+          <form action={deleteItem.bind(null, eventId, item.id, item.photo_path)}>
             <button type="submit" aria-label="Eliminar platillo" className="text-coffee-light hover:text-red-600">
               ✕
             </button>
@@ -178,9 +219,12 @@ export function ItemRow({
 
   return (
     <div className="flex items-center justify-between gap-2 py-2">
-      <div className="min-w-0">
-        <p className="truncate text-coffee">{item.name}</p>
-        {item.notes && <p className="truncate text-xs text-coffee-light">{item.notes}</p>}
+      <div className="flex min-w-0 items-center gap-3">
+        <AttachmentThumb item={item} />
+        <div className="min-w-0">
+          <p className="truncate text-coffee">{item.name}</p>
+          {item.notes && <p className="truncate text-xs text-coffee-light">{item.notes}</p>}
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {item.estimated_cost != null && (
@@ -194,15 +238,20 @@ export function ItemRow({
         >
           ✎
         </button>
-        <form action={updateItemStatus.bind(null, eventId, item.id, STATUS_CYCLE[item.status])}>
-          <button
-            type="submit"
-            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[item.status]}`}
+        <form action={updateItemStatus.bind(null, eventId, item.id)}>
+          <select
+            name="status"
+            defaultValue={item.status}
+            onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            aria-label="Estado del ítem"
+            className={`cursor-pointer whitespace-nowrap rounded-full border-none px-3 py-1 text-xs font-semibold outline-none ${STATUS_STYLES[item.status]}`}
           >
-            {item.status}
-          </button>
+            <option value="pendiente">pendiente</option>
+            <option value="confirmado">confirmado</option>
+            <option value="pagado">pagado</option>
+          </select>
         </form>
-        <form action={deleteItem.bind(null, eventId, item.id)}>
+        <form action={deleteItem.bind(null, eventId, item.id, item.photo_path)}>
           <button type="submit" aria-label="Eliminar ítem" className="text-coffee-light hover:text-red-600">
             ✕
           </button>
