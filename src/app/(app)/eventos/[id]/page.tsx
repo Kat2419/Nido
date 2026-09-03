@@ -48,6 +48,7 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
   const totalPagado = itemList
     .filter((i) => i.status === "pagado")
     .reduce((sum, i) => sum + (i.actual_cost ?? i.estimated_cost ?? 0), 0);
+  const saldoRestante = totalEstimated - totalPagado;
 
   return (
     <div className="space-y-6">
@@ -70,6 +71,10 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
         <div className="flex-1">
           <p className="text-xs text-coffee-light">Ya pagado</p>
           <p className="font-display text-xl text-sage">{formatCOP(totalPagado)}</p>
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-coffee-light">Saldo restante</p>
+          <p className="font-display text-xl text-terracotta">{formatCOP(saldoRestante)}</p>
         </div>
       </div>
 
