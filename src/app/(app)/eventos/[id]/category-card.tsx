@@ -45,22 +45,21 @@ export function CategoryCard({
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className="flex min-w-0 items-center gap-2 text-left"
+          aria-label={open ? "Colapsar" : "Expandir"}
+          className="shrink-0 text-coffee-light"
         >
-          <span className="text-coffee-light">{open ? "▾" : "▸"}</span>
-          <h3 className="truncate font-display text-lg text-coffee">{category.name}</h3>
+          {open ? "▾" : "▸"}
         </button>
-        <div className="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setViewerOpen(true)}
+          className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left"
+        >
+          <h3 className="truncate font-display text-lg text-coffee hover:text-terracotta">
+            {category.name}
+          </h3>
           <CategoryTotal kind={kind} items={items} total={total} />
-          <button
-            type="button"
-            onClick={() => setViewerOpen(true)}
-            aria-label="Ver categoría completa"
-            className="text-coffee-light hover:text-terracotta"
-          >
-            ⤢
-          </button>
-        </div>
+        </button>
       </div>
 
       {open && (
