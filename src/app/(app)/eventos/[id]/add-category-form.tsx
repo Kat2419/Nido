@@ -5,7 +5,13 @@ import { addCategory } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
 import { EVENT_CATEGORY_GROUPS } from "@/lib/types";
 
-export function AddCategoryForm({ eventId }: { eventId: string }) {
+export function AddCategoryForm({
+  eventId,
+  defaultGroup,
+}: {
+  eventId: string;
+  defaultGroup?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCategory.bind(null, eventId), undefined);
 
@@ -15,7 +21,7 @@ export function AddCategoryForm({ eventId }: { eventId: string }) {
         onClick={() => setOpen(true)}
         className="w-full rounded-2xl border-2 border-dashed border-rose-light py-3 text-sm font-medium text-coffee-light transition hover:border-terracotta hover:text-terracotta"
       >
-        + Agregar otra categoría
+        + Agregar categoría
       </button>
     );
   }
@@ -32,7 +38,7 @@ export function AddCategoryForm({ eventId }: { eventId: string }) {
       />
       <select
         name="group_name"
-        defaultValue={EVENT_CATEGORY_GROUPS[EVENT_CATEGORY_GROUPS.length - 1]}
+        defaultValue={defaultGroup ?? EVENT_CATEGORY_GROUPS[EVENT_CATEGORY_GROUPS.length - 1]}
         className="rounded-xl border border-rose-light bg-cream px-3 py-2 outline-none focus:border-terracotta"
       >
         {EVENT_CATEGORY_GROUPS.map((group) => (
