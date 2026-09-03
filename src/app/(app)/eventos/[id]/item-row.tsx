@@ -273,11 +273,11 @@ export function ItemRow({
             defaultValue={item.status}
             onChange={(e) => e.currentTarget.form?.requestSubmit()}
             aria-label="Estado del ítem"
-            className={`cursor-pointer whitespace-nowrap rounded-full border-none px-3 py-1 text-xs font-semibold outline-none ${STATUS_STYLES[item.status]}`}
+            className={`w-16 cursor-pointer whitespace-nowrap rounded-full border-none px-2 py-1 text-xs font-semibold outline-none ${STATUS_STYLES[item.status]}`}
           >
-            <option value="pendiente">pendiente</option>
-            <option value="confirmado">confirmado</option>
-            <option value="pagado">pagado</option>
+            <option value="pendiente">Pend.</option>
+            <option value="confirmado">Conf.</option>
+            <option value="pagado">Pagado</option>
           </select>
         </form>
         <button
