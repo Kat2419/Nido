@@ -13,7 +13,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </form>
       </header>
 
-      <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">{children}</div>
+      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</div>
 
       <NavBar />
     </div>
