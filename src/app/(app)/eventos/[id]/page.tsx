@@ -73,7 +73,7 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
         {categoryList.map((category) => (
           <CategoryCard
             key={category.id}
