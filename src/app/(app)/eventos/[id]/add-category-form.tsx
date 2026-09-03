@@ -5,13 +5,7 @@ import { addCategory } from "./actions";
 import { SubmitButton } from "@/components/submit-button";
 import { EVENT_CATEGORY_GROUPS } from "@/lib/types";
 
-export function AddCategoryForm({
-  eventId,
-  defaultGroup,
-}: {
-  eventId: string;
-  defaultGroup?: string;
-}) {
+export function AddCategoryForm({ eventId }: { eventId: string }) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCategory.bind(null, eventId), undefined);
 
@@ -21,7 +15,7 @@ export function AddCategoryForm({
         onClick={() => setOpen(true)}
         className="w-full rounded-2xl border-2 border-dashed border-rose-light py-3 text-sm font-medium text-coffee-light transition hover:border-terracotta hover:text-terracotta"
       >
-        + Agregar categoría
+        + Agregar tarjeta
       </button>
     );
   }
@@ -31,14 +25,14 @@ export function AddCategoryForm({
       <input
         name="name"
         type="text"
-        placeholder="Nombre de la categoría"
+        placeholder="Nombre de la tarjeta"
         required
         autoFocus
         className="min-w-[10rem] flex-1 rounded-xl border border-rose-light bg-cream px-3 py-2 outline-none focus:border-terracotta"
       />
       <select
         name="group_name"
-        defaultValue={defaultGroup ?? EVENT_CATEGORY_GROUPS[EVENT_CATEGORY_GROUPS.length - 1]}
+        defaultValue={EVENT_CATEGORY_GROUPS[EVENT_CATEGORY_GROUPS.length - 1]}
         className="rounded-xl border border-rose-light bg-cream px-3 py-2 outline-none focus:border-terracotta"
       >
         {EVENT_CATEGORY_GROUPS.map((group) => (

@@ -2,17 +2,8 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { AddCategoryForm } from "./add-category-form";
 
-export function CategoryGroupSection({
-  eventId,
-  group,
-  children,
-}: {
-  eventId: string;
-  group: string;
-  children: ReactNode;
-}) {
+export function CategoryGroupSection({ group, children }: { group: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,12 +18,9 @@ export function CategoryGroupSection({
       </button>
 
       {open && (
-        <>
-          <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {children}
-          </div>
-          <AddCategoryForm eventId={eventId} defaultGroup={group} />
-        </>
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {children}
+        </div>
       )}
     </div>
   );

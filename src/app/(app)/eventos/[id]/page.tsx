@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { EventCategory, EventItem, EventRow } from "@/lib/types";
 import { EVENT_CATEGORY_GROUPS, EVENT_PHOTOS_BUCKET } from "@/lib/types";
 import { formatCOP, formatDate } from "@/lib/format";
+import { AddCategoryForm } from "./add-category-form";
 import { CategoryCard } from "./category-card";
 import { CategoryGroupSection } from "./category-group-section";
 import { DeleteEventButton } from "./delete-event-button";
@@ -82,7 +83,7 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
         const groupCategories = categoryList.filter((c) => c.group_name === group);
 
         return (
-          <CategoryGroupSection key={group} eventId={typedEvent.id} group={group}>
+          <CategoryGroupSection key={group} group={group}>
             {groupCategories.map((category) => (
               <CategoryCard
                 key={category.id}
@@ -94,6 +95,8 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
           </CategoryGroupSection>
         );
       })}
+
+      <AddCategoryForm eventId={typedEvent.id} />
     </div>
   );
 }
