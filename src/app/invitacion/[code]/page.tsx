@@ -69,22 +69,44 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
   const showMessage = Boolean(event.welcome_message || event.welcome_message_highlight);
   const showVenue = Boolean(event.venue_name || event.venue_address);
   const showDetails = Boolean(event.dress_code || event.gift_note);
-  // Solo la sección que realmente queda primera necesita cancelar el padding
-  // superior del layout (py-10/py-16); si va segunda, ya está bien posicionada.
-  const messageIsFirst = showMessage;
-  const dateIsFirst = !showMessage && Boolean(dateParts);
-  const venueIsFirst = !showMessage && !dateParts && showVenue;
-  const detailsIsFirst = !showMessage && !dateParts && !showVenue && showDetails;
-  const rsvpIsFirst = !showMessage && !dateParts && !showVenue && !showDetails;
+  // La portada "Nos casamos" siempre va primera, así que solo ella necesita
+  // cancelar el padding superior del layout (py-10/py-16).
   const heroTopOffset = "-mt-10 sm:-mt-16";
 
   return (
     <InvitationReveal eventTitle={event.title} guestName={guestNames} partySize={item.party_size}>
       <div className="space-y-3">
+        <section
+          className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${heroTopOffset}`}
+        >
+          <div className="max-w-2xl text-center">
+            <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm">Nos casamos</p>
+            <p className="mt-4 font-script text-6xl text-ivory sm:text-7xl lg:text-8xl">
+              {event.couple_names ?? event.title}
+            </p>
+
+            {dateParts && (
+              <>
+                <div className="my-8 flex items-center justify-center gap-3">
+                  <span className="h-px w-16 bg-gold/40 lg:w-24" />
+                  <span className="text-gold">✿</span>
+                  <span className="h-px w-16 bg-gold/40 lg:w-24" />
+                </div>
+                <p className="font-display text-2xl tracking-wide text-gold sm:text-3xl lg:text-4xl">
+                  {dateParts.day} · {dateParts.month} · {dateParts.year}
+                </p>
+              </>
+            )}
+          </div>
+
+          <div className="absolute bottom-6 flex flex-col items-center gap-1 text-gold/80">
+            <span className="text-[10px] uppercase tracking-[0.3em]">Desliza</span>
+            <span className="animate-bounce text-lg leading-none">⌄</span>
+          </div>
+        </section>
+
         {showMessage && (
-          <section
-            className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${messageIsFirst ? heroTopOffset : ""}`}
-          >
+          <section className="relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8">
             <div className="relative max-w-2xl overflow-hidden rounded-3xl border border-gold/50 bg-white/40 px-8 py-14 text-center shadow-[0_20px_45px_-25px_rgba(69,79,49,0.45)] backdrop-blur-sm sm:px-14 sm:py-16 lg:px-20 lg:py-20">
               <span
                 aria-hidden="true"
@@ -125,9 +147,7 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
         )}
 
         {dateParts && (
-          <section
-            className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${dateIsFirst ? heroTopOffset : ""}`}
-          >
+          <section className="relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8">
             <div className="max-w-3xl text-center">
               <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm">
                 Reserva la fecha
@@ -181,9 +201,7 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
         )}
 
         {showVenue && (
-          <section
-            className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${venueIsFirst ? heroTopOffset : ""}`}
-          >
+          <section className="relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8">
             <div className="max-w-2xl text-center">
               <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm">El lugar</p>
               <h2 className="mt-3 font-display text-4xl italic text-ivory sm:text-5xl lg:text-6xl">
@@ -227,9 +245,7 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
         )}
 
         {showDetails && (
-          <section
-            className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${detailsIsFirst ? heroTopOffset : ""}`}
-          >
+          <section className="relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8">
             <div className="max-w-4xl text-center">
               <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm">Detalles</p>
 
@@ -292,9 +308,7 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
           </section>
         )}
 
-        <section
-          className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${rsvpIsFirst ? heroTopOffset : ""}`}
-        >
+        <section className="relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8">
           <div className="max-w-2xl text-center">
             <p className="text-xs uppercase tracking-[0.35em] text-gold sm:text-sm">
               Te esperamos
