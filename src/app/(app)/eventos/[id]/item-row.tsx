@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import type { CategoryKind, EventItem, EventItemStatus } from "@/lib/types";
+import type { CategoryKind, EventItem, EventItemStatus, RsvpStatus } from "@/lib/types";
 import { isImagePath } from "@/lib/types";
 import { formatCOP } from "@/lib/format";
 import { SubmitButton } from "@/components/submit-button";
@@ -12,6 +12,18 @@ const STATUS_STYLES: Record<EventItemStatus, string> = {
   pendiente: "bg-rose-light text-terracotta-dark",
   confirmado: "bg-gold/30 text-coffee",
   pagado: "bg-sage/30 text-sage",
+};
+
+const RSVP_STYLES: Record<RsvpStatus, string> = {
+  pendiente: "bg-rose-light text-terracotta-dark",
+  asiste: "bg-sage/30 text-sage",
+  no_asiste: "bg-coffee-light/20 text-coffee-light",
+};
+
+const RSVP_LABELS: Record<RsvpStatus, string> = {
+  pendiente: "Pendiente",
+  asiste: "Asiste",
+  no_asiste: "No asiste",
 };
 
 function CostBadge({
@@ -79,6 +91,15 @@ export function ItemRow({
   const clip = expanded ? "" : "truncate";
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [partySize, setPartySize] = useState(item.party_size);
+  const handleCopyInviteLink = async () => {
+    if (!item.rsvp_code) return;
+    const url = `${window.location.origin}/invitacion/${item.rsvp_code}`;
+    await navigator.clipboard.writeText(url);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 1500);
+  };
   const handleDelete = async () => {
     setConfirmDelete(false);
     await deleteItem(eventId, item.id, item.photo_path);
@@ -108,22 +129,44 @@ export function ItemRow({
           className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
         />
         {kind === "guest" && (
-          <div className="flex gap-2">
+          <>
+            <div className="flex gap-2">
+              <input
+                name="family"
+                type="text"
+                defaultValue={item.family ?? ""}
+                placeholder="Familia"
+                className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+              />
+              <input
+                name="table_number"
+                type="text"
+                defaultValue={item.table_number ?? ""}
+                placeholder="Mesa"
+                className="w-24 rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+              />
+            </div>
             <input
-              name="family"
-              type="text"
-              defaultValue={item.family ?? ""}
-              placeholder="Familia"
+              name="party_size"
+              type="number"
+              min="1"
+              step="1"
+              value={partySize}
+              onChange={(e) => setPartySize(Math.max(1, Number(e.target.value) || 1))}
+              placeholder="Número de invitados (ej. 2)"
               className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
             />
-            <input
-              name="table_number"
-              type="text"
-              defaultValue={item.table_number ?? ""}
-              placeholder="Mesa"
-              className="w-24 rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
-            />
-          </div>
+            {Array.from({ length: partySize - 1 }, (_, i) => (
+              <input
+                key={i}
+                name="additional_names"
+                type="text"
+                defaultValue={item.additional_guest_names?.[i] ?? ""}
+                placeholder={`Nombre de la persona ${i + 2}`}
+                className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+              />
+            ))}
+          </>
         )}
         {kind === "food" && (
           <textarea
@@ -176,7 +219,10 @@ export function ItemRow({
           <SubmitButton className="flex-1">Guardar</SubmitButton>
           <button
             type="button"
-            onClick={() => setEditing(false)}
+            onClick={() => {
+              setEditing(false);
+              setPartySize(item.party_size);
+            }}
             className="rounded-full border border-rose-light px-4 text-sm text-coffee-light"
           >
             Cancelar
@@ -194,10 +240,30 @@ export function ItemRow({
           {item.family && <p className={`${clip} text-xs text-coffee-light`}>{item.family}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {item.party_size > 1 && (
+            <span className="whitespace-nowrap rounded-full bg-sage/30 px-3 py-1 text-xs font-semibold text-sage">
+              {item.party_size} personas
+            </span>
+          )}
           {item.table_number && (
             <span className="whitespace-nowrap rounded-full bg-rose-light px-3 py-1 text-xs font-semibold text-terracotta-dark">
               Mesa {item.table_number}
             </span>
+          )}
+          <span
+            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${RSVP_STYLES[item.rsvp_status]}`}
+          >
+            {RSVP_LABELS[item.rsvp_status]}
+          </span>
+          {item.rsvp_code && (
+            <button
+              type="button"
+              onClick={handleCopyInviteLink}
+              aria-label="Copiar enlace de invitación"
+              className="text-coffee-light hover:text-terracotta"
+            >
+              {linkCopied ? "✓" : "🔗"}
+            </button>
           )}
           <button
             type="button"

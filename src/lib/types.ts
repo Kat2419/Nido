@@ -43,6 +43,15 @@ export type EventRow = {
   title: string;
   event_date: string | null;
   description: string | null;
+  couple_names: string | null;
+  venue_name: string | null;
+  venue_address: string | null;
+  event_time: string | null;
+  dress_code: string | null;
+  color_reservation_note: string | null;
+  gift_note: string | null;
+  welcome_message: string | null;
+  welcome_message_highlight: string | null;
   created_at: string;
 };
 
@@ -68,6 +77,8 @@ export type EventCategory = {
   created_at: string;
 };
 
+export type RsvpStatus = "pendiente" | "asiste" | "no_asiste";
+
 export type EventItem = {
   id: string;
   category_id: string;
@@ -81,6 +92,11 @@ export type EventItem = {
   ingredients: string | null;
   photo_path: string | null;
   photo_url: string | null;
+  rsvp_code: string | null;
+  rsvp_status: RsvpStatus;
+  rsvp_responded_at: string | null;
+  party_size: number;
+  additional_guest_names: string[];
   created_at: string;
 };
 

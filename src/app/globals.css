@@ -14,6 +14,12 @@
   --color-coffee-light: #8a756c;
   --color-sage: #7f9b7a;
   --color-gold: #d4a657;
+  --color-gold-deep: #b8860b;
+  --color-olive: #6b7a4f;
+  --color-olive-dark: #454f31;
+  --color-olive-light: #97a873;
+  --color-ivory: #fbf7ec;
+  --color-ivory-deep: #f1e8d2;
 }
 
 @theme inline {
@@ -29,11 +35,47 @@
   --color-coffee-light: var(--color-coffee-light);
   --color-sage: var(--color-sage);
   --color-gold: var(--color-gold);
+  --color-gold-deep: var(--color-gold-deep);
+  --color-olive: var(--color-olive);
+  --color-olive-dark: var(--color-olive-dark);
+  --color-olive-light: var(--color-olive-light);
+  --color-ivory: var(--color-ivory);
+  --color-ivory-deep: var(--color-ivory-deep);
   --font-sans: var(--font-nunito);
   --font-display: var(--font-fraunces);
+  --font-script: var(--font-dancing-script);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@keyframes invite-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes petal-fall {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(var(--petal-rotate-start, 0deg));
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(var(--petal-drift, 40px))
+      rotate(calc(var(--petal-rotate-start, 0deg) + 360deg));
+    opacity: 0;
+  }
 }

@@ -19,6 +19,7 @@ export function AddItemForm({
   perGuest?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [partySize, setPartySize] = useState(1);
   const [state, formAction, isPending] = useActionState(
     addItem.bind(null, eventId, categoryId),
     undefined
@@ -28,6 +29,7 @@ export function AddItemForm({
   useEffect(() => {
     if (wasPendingRef.current && !isPending && !state?.error) {
       setOpen(false);
+      setPartySize(1);
     }
     wasPendingRef.current = isPending;
   }, [isPending, state]);
@@ -60,20 +62,41 @@ export function AddItemForm({
         className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
       />
       {kind === "guest" && (
-        <div className="flex gap-2">
+        <>
+          <div className="flex gap-2">
+            <input
+              name="family"
+              type="text"
+              placeholder="Familia"
+              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+            <input
+              name="table_number"
+              type="text"
+              placeholder="Mesa"
+              className="w-24 rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+          </div>
           <input
-            name="family"
-            type="text"
-            placeholder="Familia"
+            name="party_size"
+            type="number"
+            min="1"
+            step="1"
+            value={partySize}
+            onChange={(e) => setPartySize(Math.max(1, Number(e.target.value) || 1))}
+            placeholder="Número de invitados (ej. 2)"
             className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
           />
-          <input
-            name="table_number"
-            type="text"
-            placeholder="Mesa"
-            className="w-24 rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
-          />
-        </div>
+          {Array.from({ length: partySize - 1 }, (_, i) => (
+            <input
+              key={i}
+              name="additional_names"
+              type="text"
+              placeholder={`Nombre de la persona ${i + 2}`}
+              className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+            />
+          ))}
+        </>
       )}
       {kind === "food" && (
         <textarea

@@ -12,6 +12,9 @@ import { AddCategoryForm } from "./add-category-form";
 import { CategoryCard } from "./category-card";
 import { CategoryGroupSection } from "./category-group-section";
 import { DeleteEventButton } from "./delete-event-button";
+import { EventVenueForm } from "./event-venue-form";
+import { EventMessageForm } from "./event-message-form";
+import { AttendanceSummary } from "./attendance-summary";
 
 export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">) {
   const { id } = await props.params;
@@ -54,7 +57,8 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
   const guestCategoryIds = categoryList
     .filter((c) => getCategoryKind(c.name) === "guest")
     .map((c) => c.id);
-  const guestCount = itemList.filter((i) => guestCategoryIds.includes(i.category_id)).length;
+  const guestItems = itemList.filter((i) => guestCategoryIds.includes(i.category_id));
+  const guestCount = guestItems.reduce((sum, i) => sum + i.party_size, 0);
 
   const estimatedTotalFor = (item: EventItem) => {
     const category = categoryById.get(item.category_id);
@@ -80,6 +84,9 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
         <DeleteEventButton eventId={typedEvent.id} />
       </div>
 
+      <EventVenueForm event={typedEvent} />
+      <EventMessageForm event={typedEvent} />
+
       <div className="flex gap-4 rounded-2xl bg-white/60 p-4 shadow-sm">
         <div className="flex-1">
           <p className="text-xs text-coffee-light">Presupuesto estimado</p>
@@ -94,6 +101,8 @@ export default async function EventoDetailPage(props: PageProps<"/eventos/[id]">
           <p className="font-display text-xl text-terracotta">{formatCOP(saldoRestante)}</p>
         </div>
       </div>
+
+      <AttendanceSummary items={guestItems} />
 
       {EVENT_CATEGORY_GROUPS.map((group) => {
         const groupCategories = categoryList.filter((c) => c.group_name === group);

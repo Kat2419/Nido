@@ -17,6 +17,14 @@ function parseCategoryGroup(value: FormDataEntryValue | null): EventCategoryGrou
   return groups.includes(String(value)) ? (value as EventCategoryGroup) : DEFAULT_CATEGORY_GROUP;
 }
 
+function parseAdditionalGuestNames(formData: FormData, partySize: number): string[] {
+  return formData
+    .getAll("additional_names")
+    .map((v) => String(v).trim())
+    .filter(Boolean)
+    .slice(0, Math.max(0, partySize - 1));
+}
+
 async function uploadItemPhoto(
   supabase: SupabaseClient,
   coupleId: string,
@@ -110,6 +118,8 @@ export async function addItem(
   const family = String(formData.get("family") ?? "").trim();
   const tableNumber = String(formData.get("table_number") ?? "").trim();
   const ingredients = String(formData.get("ingredients") ?? "").trim();
+  const partySize = Number(formData.get("party_size") ?? 1) || 1;
+  const additionalGuestNames = parseAdditionalGuestNames(formData, partySize);
 
   if (!name) {
     return { error: "Escribe el nombre del ítem." };
@@ -127,6 +137,8 @@ export async function addItem(
     table_number: tableNumber || null,
     ingredients: ingredients || null,
     photo_path: photoPath,
+    party_size: partySize,
+    additional_guest_names: additionalGuestNames,
   });
 
   if (error) {
@@ -150,6 +162,8 @@ export async function updateItem(
   const tableNumber = String(formData.get("table_number") ?? "").trim();
   const ingredients = String(formData.get("ingredients") ?? "").trim();
   const oldPhotoPath = String(formData.get("old_photo_path") ?? "").trim();
+  const partySize = Number(formData.get("party_size") ?? 1) || 1;
+  const additionalGuestNames = parseAdditionalGuestNames(formData, partySize);
 
   if (!name) {
     return { error: "Escribe el nombre del ítem." };
@@ -170,6 +184,8 @@ export async function updateItem(
       family: family || null,
       table_number: tableNumber || null,
       ingredients: ingredients || null,
+      party_size: partySize,
+      additional_guest_names: additionalGuestNames,
       ...(newPhotoPath ? { photo_path: newPhotoPath } : {}),
     })
     .eq("id", itemId);

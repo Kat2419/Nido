@@ -45,6 +45,15 @@ create table if not exists events (
   title text not null,
   event_date date,
   description text,
+  couple_names text,
+  venue_name text,
+  venue_address text,
+  event_time text,
+  dress_code text,
+  color_reservation_note text,
+  gift_note text,
+  welcome_message text,
+  welcome_message_highlight text,
   created_at timestamptz not null default now()
 );
 
@@ -78,6 +87,11 @@ create table if not exists event_items (
   table_number text,
   ingredients text,
   photo_path text,
+  rsvp_code text unique default encode(gen_random_bytes(6), 'hex'),
+  rsvp_status text not null default 'pendiente' check (rsvp_status in ('pendiente', 'asiste', 'no_asiste')),
+  rsvp_responded_at timestamptz,
+  party_size integer not null default 1 check (party_size >= 1),
+  additional_guest_names text[] not null default '{}',
   created_at timestamptz not null default now()
 );
 

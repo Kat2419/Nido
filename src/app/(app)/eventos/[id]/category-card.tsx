@@ -19,8 +19,9 @@ function CategoryTotal({
   total: number;
 }) {
   if (kind === "guest") {
-    return items.length > 0 ? (
-      <span className="text-sm text-coffee-light">{items.length} invitados</span>
+    const guestCount = items.reduce((sum, i) => sum + i.party_size, 0);
+    return guestCount > 0 ? (
+      <span className="text-sm text-coffee-light">{guestCount} invitados</span>
     ) : null;
   }
   return total > 0 ? <span className="text-sm text-coffee-light">{formatCOP(total)}</span> : null;

@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/registro", "/auth/confirm"];
+const PUBLIC_PATHS = ["/login", "/registro", "/auth/confirm", "/invitacion"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (path !== "/bienvenida" && !path.startsWith("/auth")) {
+    if (path !== "/bienvenida" && !path.startsWith("/auth") && !path.startsWith("/invitacion")) {
       const { data: profile } = await supabase
         .from("profiles")
         .select("couple_id")
