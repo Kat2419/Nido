@@ -274,14 +274,12 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
                         <p className="text-[10px] uppercase tracking-[0.3em] text-ivory/70 sm:text-xs">
                           Reserva de color
                         </p>
-                        <p className="mt-2 text-sm italic leading-relaxed text-ivory/90 sm:text-base">
+                        <p className="mt-2 text-sm italic leading-relaxed text-olive-light sm:text-base">
                           {highlightWords(event.color_reservation_note, [
                             { word: "blanco", className: "text-white" },
-                            {
-                              word: "color",
-                              className:
-                                "bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-blue-500 to-purple-500 bg-clip-text font-semibold text-transparent",
-                            },
+                            { word: "marfil", className: "text-white" },
+                            { word: "beige", className: "text-white" },
+                            { word: "hueso", className: "text-white" },
                           ])}
                         </p>
                       </div>
