@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { EventItem, RsvpStatus } from "@/lib/types";
+import { formatNameList } from "@/lib/format";
 
 const STATUS_ORDER: RsvpStatus[] = ["asiste", "no_asiste", "pendiente"];
 
@@ -72,7 +73,9 @@ export function AttendanceSummary({ items }: { items: EventItem[] }) {
                   <ul className="divide-y divide-rose-light">
                     {groups[status].map((item) => (
                       <li key={item.id} className="flex items-center justify-between gap-2 py-2 text-sm">
-                        <span className="text-coffee">{item.name}</span>
+                        <span className="text-coffee">
+                          {formatNameList([item.name, ...(item.additional_guest_names ?? [])])}
+                        </span>
                         {item.party_size > 1 && (
                           <span className="shrink-0 text-xs text-coffee-light">
                             {item.party_size} personas
