@@ -46,6 +46,7 @@ create table if not exists events (
   event_date date,
   description text,
   couple_names text,
+  rsvp_deadline date,
   venue_name text,
   venue_address text,
   event_time text,

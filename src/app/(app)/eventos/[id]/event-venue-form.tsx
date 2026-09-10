@@ -36,6 +36,9 @@ export function EventVenueForm({ event }: { event: EventRow }) {
           <div className="space-y-1 text-sm text-coffee-light">
             {event.event_date && <p className="text-coffee">{formatDate(event.event_date)}</p>}
             {event.couple_names && <p className="text-coffee">{event.couple_names}</p>}
+            {event.rsvp_deadline && (
+              <p>Límite para confirmar: {formatDate(event.rsvp_deadline)}</p>
+            )}
             {event.venue_name && <p className="text-coffee">{event.venue_name}</p>}
             {event.venue_address && <p>{event.venue_address}</p>}
             {event.event_time && <p>{event.event_time}</p>}
@@ -75,6 +78,17 @@ export function EventVenueForm({ event }: { event: EventRow }) {
         placeholder="Nombres de la pareja (ej. David y Viviana)"
         className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
       />
+      <div>
+        <label className="mb-1 block text-xs text-coffee-light">
+          Fecha límite para confirmar asistencia (opcional)
+        </label>
+        <input
+          name="rsvp_deadline"
+          type="date"
+          defaultValue={event.rsvp_deadline ?? ""}
+          className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+        />
+      </div>
       <input
         name="venue_name"
         type="text"

@@ -59,6 +59,7 @@ export async function updateEventVenue(
 ): Promise<EventState> {
   const eventDate = String(formData.get("event_date") ?? "").trim();
   const coupleNames = String(formData.get("couple_names") ?? "").trim();
+  const rsvpDeadline = String(formData.get("rsvp_deadline") ?? "").trim();
   const venueName = String(formData.get("venue_name") ?? "").trim();
   const venueAddress = String(formData.get("venue_address") ?? "").trim();
   const eventTime = String(formData.get("event_time") ?? "").trim();
@@ -72,6 +73,7 @@ export async function updateEventVenue(
     .update({
       event_date: eventDate || null,
       couple_names: coupleNames || null,
+      rsvp_deadline: rsvpDeadline || null,
       venue_name: venueName || null,
       venue_address: venueAddress || null,
       event_time: eventTime || null,

@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { EventItem, EventRow } from "@/lib/types";
-import { formatDateParts, formatNameList } from "@/lib/format";
+import { formatDate, formatDateParts, formatNameList } from "@/lib/format";
 import { Countdown } from "./countdown";
 import { RsvpButtons } from "./rsvp-buttons";
 import { InvitationReveal } from "./invitation-reveal";
@@ -318,6 +318,13 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
               <br />
               de asistencia
             </h2>
+
+            {event.rsvp_deadline && (
+              <p className="mt-4 text-sm text-ivory/80 sm:text-base">
+                Por favor confirma tu asistencia antes del {formatDate(event.rsvp_deadline)}.
+                Pasada esta fecha, entenderemos que no podrás acompañarnos.
+              </p>
+            )}
 
             <div className="mt-6">
               <RsvpButtons code={code} initialStatus={item.rsvp_status} />

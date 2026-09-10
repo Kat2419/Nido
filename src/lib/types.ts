@@ -44,6 +44,7 @@ export type EventRow = {
   event_date: string | null;
   description: string | null;
   couple_names: string | null;
+  rsvp_deadline: string | null;
   venue_name: string | null;
   venue_address: string | null;
   event_time: string | null;
