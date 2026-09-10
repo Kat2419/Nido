@@ -9,17 +9,21 @@ type ItemWithEvent = EventItem & {
   event_categories: { events: EventRow | null } | null;
 };
 
-function highlightWord(text: string, word: string) {
-  const parts = text.split(new RegExp(`(${word})`, "gi"));
-  return parts.map((part, i) =>
-    part.toLowerCase() === word.toLowerCase() ? (
-      <span key={i} className="text-white">
+type WordStyle = { word: string; className: string };
+
+function highlightWords(text: string, rules: WordStyle[]) {
+  const pattern = new RegExp(`(${rules.map((r) => r.word).join("|")})`, "gi");
+  const parts = text.split(pattern);
+  return parts.map((part, i) => {
+    const rule = rules.find((r) => r.word.toLowerCase() === part.toLowerCase());
+    return rule ? (
+      <span key={i} className={rule.className}>
         {part}
       </span>
     ) : (
       part
-    )
-  );
+    );
+  });
 }
 
 function InviteCard({
@@ -271,7 +275,14 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
                           Reserva de color
                         </p>
                         <p className="mt-2 text-sm italic leading-relaxed text-ivory/90 sm:text-base">
-                          {highlightWord(event.color_reservation_note, "blanco")}
+                          {highlightWords(event.color_reservation_note, [
+                            { word: "blanco", className: "text-white" },
+                            {
+                              word: "color",
+                              className:
+                                "bg-gradient-to-r from-red-500 via-yellow-400 via-green-500 via-blue-500 to-purple-500 bg-clip-text font-semibold text-transparent",
+                            },
+                          ])}
                         </p>
                       </div>
                     )}
