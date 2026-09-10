@@ -329,10 +329,14 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
             </h2>
 
             {event.rsvp_deadline && (
-              <p className="mt-4 text-sm text-ivory/80 sm:text-base">
-                Por favor confirma tu asistencia antes del {formatDate(event.rsvp_deadline)}.
-                Pasada esta fecha, entenderemos que no podrás acompañarnos.
-              </p>
+              <div className="mx-auto mt-6 max-w-md rounded-2xl border border-gold/50 bg-white/10 px-5 py-4 backdrop-blur-sm">
+                <p className="text-sm font-semibold text-gold sm:text-base">
+                  Confirma antes del {formatDate(event.rsvp_deadline)}
+                </p>
+                <p className="mt-1 text-xs text-ivory/80 sm:text-sm">
+                  Pasada esta fecha, entenderemos que no podrás acompañarnos.
+                </p>
+              </div>
             )}
 
             <div className="mt-6">
