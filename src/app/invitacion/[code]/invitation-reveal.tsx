@@ -26,19 +26,18 @@ export function InvitationReveal({
 
         <p className="text-xs uppercase tracking-[0.35em] text-ivory/90">Invitación reservada</p>
 
-        <div className="relative w-full max-w-[520px]">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Abrir invitación"
+          className="w-full max-w-[520px] cursor-pointer"
+        >
           <img
             src="/petals/sobre.jpg"
             alt="Sobre de la invitación"
-            className="w-full rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]"
+            className="w-full rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] transition-transform hover:scale-[1.02]"
           />
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Abrir invitación"
-            className="absolute left-[46%] top-[62%] aspect-square w-[22%] -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full"
-          />
-        </div>
+        </button>
 
         <div>
           <h1 className="font-display text-2xl italic text-ivory">{eventTitle}</h1>
@@ -48,7 +47,7 @@ export function InvitationReveal({
           </p>
         </div>
 
-        <p className="text-xs uppercase tracking-[0.3em] text-gold">Toca el sello para abrir</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-gold">Toca la invitación para abrir</p>
       </div>
     );
   }
