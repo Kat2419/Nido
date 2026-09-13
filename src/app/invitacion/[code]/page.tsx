@@ -78,7 +78,11 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
   const heroTopOffset = "-mt-10 sm:-mt-16";
 
   return (
-    <InvitationReveal eventTitle={event.title} guestName={guestNames} partySize={item.party_size}>
+    <InvitationReveal
+      eventTitle={event.couple_names ?? event.title}
+      guestName={guestNames}
+      partySize={item.party_size}
+    >
       <div className="space-y-3">
         <section
           className={`relative left-1/2 -ml-[50vw] grid min-h-screen w-screen place-items-center px-4 py-16 sm:px-8 ${heroTopOffset}`}
