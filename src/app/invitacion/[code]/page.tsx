@@ -79,7 +79,7 @@ export default async function InvitacionPage(props: PageProps<"/invitacion/[code
 
   return (
     <InvitationReveal
-      eventTitle={event.couple_names ?? event.title}
+      eventTitle={event.title}
       guestName={guestNames}
       partySize={item.party_size}
     >

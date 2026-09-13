@@ -22,6 +22,7 @@ export function EventVenueForm({ event }: { event: EventRow }) {
   }, [isPending, state]);
 
   const hasVenueInfo =
+    event.title ||
     event.event_date ||
     event.couple_names ||
     event.venue_name ||
@@ -34,6 +35,7 @@ export function EventVenueForm({ event }: { event: EventRow }) {
       <div className="rounded-2xl bg-white/60 p-4 shadow-sm">
         {hasVenueInfo ? (
           <div className="space-y-1 text-sm text-coffee-light">
+            <p className="text-coffee">{event.title}</p>
             {event.event_date && <p className="text-coffee">{formatDate(event.event_date)}</p>}
             {event.couple_names && <p className="text-coffee">{event.couple_names}</p>}
             {event.rsvp_deadline && (
@@ -65,6 +67,14 @@ export function EventVenueForm({ event }: { event: EventRow }) {
 
   return (
     <form action={formAction} className="space-y-2 rounded-2xl bg-white/60 p-4 shadow-sm">
+      <input
+        name="title"
+        type="text"
+        defaultValue={event.title}
+        required
+        placeholder="Título del evento (ej. Cena, Boda)"
+        className="w-full rounded-xl border border-rose-light bg-cream px-3 py-2 text-sm outline-none focus:border-terracotta"
+      />
       <input
         name="event_date"
         type="date"

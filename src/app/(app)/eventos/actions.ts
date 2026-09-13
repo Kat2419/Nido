@@ -57,9 +57,14 @@ export async function updateEventVenue(
   _prevState: EventState,
   formData: FormData
 ): Promise<EventState> {
+  const title = String(formData.get("title") ?? "").trim();
   const eventDate = String(formData.get("event_date") ?? "").trim();
   const coupleNames = String(formData.get("couple_names") ?? "").trim();
   const rsvpDeadline = String(formData.get("rsvp_deadline") ?? "").trim();
+
+  if (!title) {
+    return { error: "Ponle un título al evento." };
+  }
   const venueName = String(formData.get("venue_name") ?? "").trim();
   const venueAddress = String(formData.get("venue_address") ?? "").trim();
   const eventTime = String(formData.get("event_time") ?? "").trim();
@@ -71,6 +76,7 @@ export async function updateEventVenue(
   const { error } = await supabase
     .from("events")
     .update({
+      title,
       event_date: eventDate || null,
       couple_names: coupleNames || null,
       rsvp_deadline: rsvpDeadline || null,
