@@ -1,33 +1,54 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { addMarketItem } from "./actions";
-import { SubmitButton } from "@/components/submit-button";
+import type { Store } from "@/lib/types";
 
 export function AddItemForm() {
-  const [state, formAction] = useActionState(addMarketItem, undefined);
-  const [store, setStore] = useState("D1");
+  const formRef = useRef<HTMLFormElement>(null);
+  const [store, setStore] = useState<Store>("D1");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!formRef.current) return;
+
+    const formData = new FormData(formRef.current);
+    formData.set("store", store);
+
+    setPending(true);
+    const result = await addMarketItem(undefined, formData);
+    setPending(false);
+
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+    setError(null);
+    formRef.current.reset();
+  }
 
   return (
-    <form action={formAction} className="space-y-3 rounded-2xl bg-white/60 p-4 shadow-sm">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="space-y-3 rounded-2xl bg-white/60 p-4 shadow-sm"
+    >
       <div className="flex gap-2">
         {(["D1", "Mercar", "Otro"] as const).map((s) => (
-          <label
+          <button
             key={s}
-            className={`flex-1 cursor-pointer rounded-xl border-2 py-2 text-center text-sm font-semibold transition ${
-              store === s ? "border-terracotta bg-rose-light text-terracotta-dark" : "border-rose-light text-coffee-light"
+            type="button"
+            onClick={() => setStore(s)}
+            className={`flex-1 rounded-xl border-2 py-2 text-center text-sm font-semibold transition ${
+              store === s
+                ? "border-terracotta bg-rose-light text-terracotta-dark"
+                : "border-rose-light text-coffee-light"
             }`}
           >
-            <input
-              type="radio"
-              name="store"
-              value={s}
-              checked={store === s}
-              onChange={() => setStore(s)}
-              className="sr-only"
-            />
             {s}
-          </label>
+          </button>
         ))}
       </div>
 
@@ -69,9 +90,15 @@ export function AddItemForm() {
         />
       </div>
 
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <SubmitButton className="w-full">Agregar al mercado</SubmitButton>
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex w-full items-center justify-center rounded-full bg-terracotta px-6 py-2.5 font-semibold text-cream shadow-sm transition hover:bg-terracotta-dark disabled:opacity-60"
+      >
+        {pending ? "Un momento..." : "Agregar al mercado"}
+      </button>
     </form>
   );
 }
