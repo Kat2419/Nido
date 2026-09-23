@@ -21,6 +21,8 @@ export function AttendanceSummary({ items }: { items: EventItem[] }) {
     pendiente: items.filter((i) => i.rsvp_status === "pendiente"),
   };
 
+  const peopleCount = (list: EventItem[]) => list.reduce((sum, i) => sum + i.party_size, 0);
+
   return (
     <div className="rounded-2xl bg-white/60 p-4 shadow-sm">
       <button
@@ -35,7 +37,7 @@ export function AttendanceSummary({ items }: { items: EventItem[] }) {
               key={status}
               className={`rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${STATUS_META[status].style}`}
             >
-              {groups[status].length} {STATUS_META[status].label.toLowerCase()}
+              {peopleCount(groups[status])} {STATUS_META[status].label.toLowerCase()}
             </span>
           ))}
         </div>
@@ -65,7 +67,11 @@ export function AttendanceSummary({ items }: { items: EventItem[] }) {
             {STATUS_ORDER.map((status) => (
               <div key={status} className="mb-6 last:mb-0">
                 <h4 className="mb-2 text-sm font-semibold text-coffee">
-                  {STATUS_META[status].label} ({groups[status].length})
+                  {STATUS_META[status].label} ({peopleCount(groups[status])} personas
+                  {groups[status].length !== peopleCount(groups[status])
+                    ? `, ${groups[status].length} grupos`
+                    : ""}
+                  )
                 </h4>
                 {groups[status].length === 0 ? (
                   <p className="text-sm text-coffee-light">Nadie por ahora.</p>
